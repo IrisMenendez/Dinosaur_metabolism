@@ -1,0 +1,75 @@
+#NEXUS
+[written Sat Jun 26 16:16:36 EDT 2021 by Mesquite  version 3.40 (build 877) at LAPTOP-8TEA0FUM/10.0.0.199]
+
+BEGIN TAXA;
+	TITLE Taxa;
+	DIMENSIONS NTAX=55;
+	TAXLABELS
+		Anseriform Diplodocid Rhamphorhynchoid Hesperornis Pachycephalosaur Allosaurus Deinonychus Brontothere Nodosaurus Telmatornis Saniwa Marsupial Insectivore Cetacean Tyrannosaurus Dryosaurus Pteranodon Polyglyphanodon Pancelosaurus Plesiosaur Melanosaurus Crocodylomorph Hadrosaur Xanthusiid Triceratops Edaphosaurus Stegosaurus Champsosaur Cteniogenys Paleophis Dendrocygna Topaza Crypturellus Mustela Columbina Varanus Rattus Anthrozous Ara Oceanodroma Marmosa Spheniscus Passer Tenrec Ochotona Aotus Platypus Tachyglossus Agama Gavialis Furcifer Bos Puma Chironectes Iguana 
+	;
+
+END;
+
+
+BEGIN TREES;
+	LINK Taxa = Taxa;
+	TRANSLATE
+		1	Anseriform,
+		2	Diplodocid,
+		3	Rhamphorhynchoid,
+		4	Hesperornis,
+		5	Pachycephalosaur,
+		6	Allosaurus,
+		7	Deinonychus,
+		8	Brontothere,
+		9	Nodosaurus,
+		10	Telmatornis,
+		11	Saniwa,
+		12	Marsupial,
+		13	Insectivore,
+		14	Cetacean,
+		15	Tyrannosaurus,
+		16	Dryosaurus,
+		17	Pteranodon,
+		18	Polyglyphanodon,
+		19	Pancelosaurus,
+		20	Plesiosaur,
+		21	Melanosaurus,
+		22	Crocodylomorph,
+		23	Hadrosaur,
+		24	Xanthusiid,
+		25	Triceratops,
+		26	Edaphosaurus,
+		27	Stegosaurus
+		28	Champsosaur,
+		29	Cteniogenys,
+		30	Paleophis,
+		31	Dendrocygna
+		32	Topaza,
+		33	Crypturellus,
+		34	Mustela,
+		35	Columbina,
+		36	Varanus,
+		37	Rattus,
+		38	Anthrozous,
+		39	Ara,
+		40	Oceanodroma,
+		41	Marmosa,
+		42	Spheniscus,
+		43	Passer,
+		44	Tenrec,
+		45	Ochotona,
+		46	Aotus,
+		47	Platypus,
+		48	Tachyglossus,
+		49	Agama,
+		50	Gavialis,
+		51	Furcifer,
+		52	Bos,
+		53	Puma,
+		54	Chironectes,
+		55	Iguana
+		;
+	TREE * UNTITLED = [&R]
+((26,((47,48),((12,(41,54)),(44,((13,(38,((34,53),(8,(52,14))))),(46,(37,45))))))),((29,28),(20,((((49,51),55),(18,(24,((19,21),(30,(11,36)))))),((22,50),((3,17),(((9,27),((5,25),(16,23))),(2,(6,(15,(7,(4,(33,((31,1),(32,(35,((10,(42,40)),(43,39))))))))))))))))));
+END;
