@@ -1,0 +1,264 @@
+#response Motani et al
+#R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+
+library(ape)
+library(geiger)
+library(phytools)
+library(OUwie)
+library(reshape2)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggridges)
+
+
+set.seed(2803)
+
+#load data
+dat_MR <- read.table("trait.txt",header=TRUE, sep = "\t")
+
+MetRate <- dat_MR$Calculated.MRs..mL.O2...1.h...1.g.
+names(MetRate) <- dat_MR$Taxon
+
+phy <- read.nexus("consensus_Paleotree_final.tre")
+
+phydata <- geiger::treedata(phy, MetRate, sort=TRUE)
+
+MetRate_phy <- phydata$data
+colnames(MetRate_phy) <- "MetRate"
+
+
+
+###Original reconstruction
+fitBM_fastanc <-fastAnc(phydata$phy,MetRate_phy,vars=TRUE,CI=TRUE)
+contmap_BM <- contMap(phydata$phy, MetRate_phy[,1], method = "user", 
+                      anc.states = fitBM_fastanc$ace)
+#change default colors
+ramp_rate <- colorRampPalette(c("#02b2ce","#ffd004",  "#e52920"), bias=1.5) 
+contmap_BM$cols[] <- ramp_rate(1001)
+
+plot(contmap_BM, lwd = 2, fsize=0.5, outline=FALSE)
+title(main="Original reconstruction - BM")
+
+
+
+###
+#How well fastAnc performs ASR ----
+#following:
+#https://lukejharmon.github.io/ilhabela/instruction/2015/07/03/ancestral-states-1/
+#(see also Revell, L. J., Harmon, L. J. (2022). Phylogenetic Comparative Methods in R. United Kingdom: Princeton University Press. )
+
+#we simulate states in our phylogeny under BM
+
+MetRate_BM <- fitContinuous(phydata$phy, MetRate_phy, model = "BM")
+x.BM<-fastBM(phydata$phy,internal=TRUE, sig2= MetRate_BM$opt$sigsq,
+             a= MetRate_BM$opt$z0)
+
+
+## ancestral states
+a.BM<-x.BM[as.character(1:phydata$phy$Nnode+Ntip(phydata$phy))]
+## tip data
+x.BM<-x.BM[phydata$phy$tip.label]
+
+fit.test.BM <-fastAnc(phydata$phy,x.BM,vars=TRUE,CI=TRUE)
+
+correl.BM <- cor(a.BM,fit.test.BM$ace)
+
+pdf("correlation_BM.pdf")
+correl.BM <- cor(a.BM,fit.test.BM$ace)
+plot(a.BM,fit.test.BM$ace,xlab="true states",ylab="estimated states")
+lines(range(c(x.BM,a.BM)),range(c(x.BM,a.BM)),lty="dashed",col="red") ## 1:1 line
+title(main= paste("BM cor =", correl.BM))
+dev.off()
+
+#They show high correlation, demonstrating that the function recovers credible ancestral states
+
+
+
+
+#BAYESIAN ANALISIS ----
+MetRate_phy.vec <- as.vector(MetRate_phy)
+names(MetRate_phy.vec) <- rownames(MetRate_phy)
+fit.bayes <- anc.Bayes(phydata$phy,MetRate_phy.vec, ngen = 99999)
+plot(fit.bayes$mcmc$logLik)
+
+
+#burning
+fit.bayes.burned <- fit.bayes$mcmc[-c(1:200),]
+plot(fit.bayes.burned$logLik)
+bayes.res <- fit.bayes$mcmc[-c(1:200),-c(1,2,ncol(fit.bayes.burned))]
+nodes.inference <- colMeans(bayes.res)
+nodes.range <- lapply(bayes.res, range)
+nodes.CI <- sapply(bayes.res, 
+                   quantile, probs=c(0.025, 0.975))
+
+nodes.inference.df <- data.frame(variable = names(nodes.inference), Bayesian=nodes.inference,
+                                 CImin=nodes.CI[1,], CImax=nodes.CI[2,])
+
+contmap_Bayes <- contMap(phydata$phy, MetRate_phy[,1], method = "user", 
+                         anc.states = nodes.inference, plot=F)
+contmap_Bayes$cols[] <- ramp_rate(1001)
+plot(contmap_Bayes, lwd = 2, fsize=0.5, outline=F)
+
+plot(fitBM_fastanc$ace,nodes.inference)
+cor(fitBM_fastanc$ace,nodes.inference)
+#similar results than in our original reconstruction
+
+
+
+
+###plot probability of every node to show that is not the same for all the confidence interval
+
+bayes.res.long <- melt(bayes.res)
+head(bayes.res.long)
+
+
+nodes_plot <- ggplot(data=bayes.res.long, aes(x = value)) + 
+  facet_wrap(facets=vars(variable), nrow=6, scales="free")+
+  geom_histogram()+
+  geom_vline(dat=nodes.inference.df, aes(xintercept=Bayesian), col="red")+
+  theme_classic()
+
+ggsave("nodes_plot.pdf", nodes_plot, paper="a4r", width = 15)
+
+
+
+
+
+
+#figure of Moteni et al but with probability of CI
+
+bayes.res.long2 <- melt(bayes.res[,c("73","74","77","86","88", "89","90","91","96","100","58")])
+
+
+bayes.res.long2$Clade[bayes.res.long2$variable==73] <- 'Diapsida'
+bayes.res.long2$Clade[bayes.res.long2$variable == 74] <- 'Choristodera'
+bayes.res.long2$Clade[bayes.res.long2$variable == 77] <- 'Squamata'
+bayes.res.long2$Clade[bayes.res.long2$variable == 86] <- 'Archosauria'
+bayes.res.long2$Clade[bayes.res.long2$variable == 88] <- 'Ornithodira'
+bayes.res.long2$Clade[bayes.res.long2$variable == 89] <- 'Pterosauria'
+bayes.res.long2$Clade[bayes.res.long2$variable == 90] <- 'Dinosauria'
+bayes.res.long2$Clade[bayes.res.long2$variable == 91] <- 'Ornithischia'
+bayes.res.long2$Clade[bayes.res.long2$variable == 96] <- 'Saurischia'
+bayes.res.long2$Clade[bayes.res.long2$variable == 100] <- 'Aves'
+bayes.res.long2$Clade[bayes.res.long2$variable == 58] <- 'Mammalia'
+
+
+
+bayes.res.long2$Clade <- factor(bayes.res.long2$Clade, level=c('Diapsida', 
+                        'Choristodera', 'Squamata', 'Archosauria', 'Ornithodira', 
+                        'Pterosauria', 'Dinosauria', 'Ornithischia', 'Saurischia', 
+                        'Aves','Mammalia'))
+
+
+
+node.means <- bayes.res.long2 %>% 
+  group_by(Clade) %>% 
+  summarise(meannode = mean(value))
+
+
+response_figure <- ggplot(data=bayes.res.long2)+
+  stat_density_ridges(aes(x=value, y=Clade, fill=stat(quantile)),
+                      geom = "density_ridges_gradient", quantile_lines = FALSE, 
+                      calc_ecdf = TRUE, scale=1,
+                      quantiles = c(0.025, 0.975))+
+  scale_fill_manual(name = "Prob.", values = c("white", "gray80", "white"))+
+  stat_density_ridges(aes(x=value, y=Clade),fill="transparent",scale=1,
+                      quantile_lines = TRUE,quantiles = c(0.5))+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 90))+
+  coord_flip()
+
+ggsave("response_figure.pdf",response_figure)
+
+
+
+
+##### MODELS
+#Now with an OU
+MetRate_phy.vec <- as.vector(MetRate_phy)
+names(MetRate_phy.vec) <- rownames(MetRate_phy)
+fitOU_ancml <-anc.ML(phydata$phy,MetRate_phy.vec, model = "OU")
+
+contmap_OU <- contMap(phydata$phy, MetRate_phy[,1], method = "user", 
+                      anc.states = fitOU_ancml$ace)
+contmap_OU$cols[] <- ramp_rate(1001)
+
+
+pdf("contmap_OU.pdf")
+plot(contmap_OU, lwd = 2, fsize=0.5, outline=F)
+title(main="FastAnc - OU")
+dev.off()
+
+
+
+plot(fitBM_fastanc$ace,fitOU_ancml$ace)
+cor(fitBM_fastanc$ace,fitOU_ancml$ace)
+#We obtain very similar results than in our original reconstruction
+
+
+
+#Let's try with other packages, as anc.mL has not be thoroughly tested for OU models
+#OUwie package ----
+
+#first we need to do a discrete character reconstruction
+
+MetRate_dis <- dat_MR$Categorical.strategy
+names(MetRate_dis) <- dat_MR$Taxon
+phydata_dis <- geiger::treedata(phy, MetRate_dis, sort=TRUE)
+
+MetRate_dis <- phydata_dis$data
+colnames(MetRate_dis) <- "MetRate_dis"
+MetRate_dis[MetRate_dis==0] <- 2
+
+asr_dis_ml <- make.simmap(phydata_dis$phy, MetRate_dis[,1], model = "ER", nsim=1000) #we use an equal rates model assuming changing states is equally probable
+asr_dis_db_ml <- describe.simmap(asr_dis_ml)
+
+
+col_pd <- setNames(c("#e52920", "#02b2ce"), c("1", "2"))
+plot(asr_dis_db_ml, fsize=1, ftype="i", colors = col_pd)
+
+
+#Now we fit models with OUwie package
+
+ouwie_phy <- phydata_dis$phy
+ouwie_phy$node.label <- as.numeric(asr_dis_db_ml$ace[1:54,1]>0.5)
+ouwie_phy$node.label[ouwie_phy$node.label==0] <- 2
+
+data_ouwie <- data.frame(Genus_species= rownames(MetRate_phy), Reg=MetRate_dis[,1], 
+                         X=MetRate_phy[,1])
+
+MetRate_BM1 <- OUwie(ouwie_phy, data_ouwie, model = "BM1",root.station=FALSE, 
+                     algorithm = "three.point", scaleHeight =FALSE)
+MetRate_BMS <- OUwie(ouwie_phy, data_ouwie, model = "BMS", root.station=FALSE, 
+                     algorithm = "three.point", scaleHeight = FALSE)
+MetRate_OU1 <- OUwie(ouwie_phy, data_ouwie, model = "OU1", root.station=FALSE, 
+                     scaleHeight = FALSE,algorithm = "three.point")
+MetRate_OUM <- OUwie(ouwie_phy, data_ouwie, model = "OUM", root.station=FALSE, 
+                     algorithm = "three.point", scaleHeight = FALSE)
+
+
+aicw(c(MetRate_BM1$AICc,MetRate_BMS$AICc,MetRate_OU1$AICc,MetRate_OUM$AICc))
+#oUM is the best fitted model
+Ouwie_OUM_anc <- OUwie.anc(MetRate_OUM, knowledge=TRUE )
+Ouwie_OUM_anc$NodeRecon
+
+
+contmap_OUM_ouwie <- contMap(phydata$phy, MetRate_phy[,1], method = "user", 
+                            anc.states = Ouwie_OUM_anc$NodeRecon, plot = F)
+contmap_OUM_ouwie$cols[] <- ramp_rate(1001)
+
+plot(contmap_OUM_ouwie, lwd = 2, fsize=0.5, outline=F)
+
+
+plot(fitBM_fastanc$ace,Ouwie_OUM_anc$NodeRecon)
+cor(fitBM_fastanc$ace,Ouwie_OUM_anc$NodeRecon)
+#similar results too. 
+
+#This model fitted better, but it implies that it only exists one optimum for all species, 
+#which is not the expectation. This complex models would require an underlying hypothesis 
+#of which species are subject to different regimes of natural selection. 
+
+#Running every available model and choosing the best fit is not always the best choice, 
+#as we need to consider their biological meaningfulness.
+

@@ -1,0 +1,123 @@
+#NEXUS
+[R-package PHYTOOLS, Sun Jul 11 14:53:13 2021]
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 55;
+	TAXLABELS
+		Agama
+		Allosaurus
+		Anseriform
+		Anthrozous
+		Aotus
+		Ara
+		Bos
+		Brontothere
+		Cetacean
+		Champsosaur
+		Chironectes
+		Columbina
+		Crocodylomorph
+		Crypturellus
+		Cteniogenys
+		Deinonychus
+		Dendrocygna
+		Diplodocid
+		Dryosaurus
+		Edaphosaurus
+		Furcifer
+		Gavialis
+		Hadrosaur
+		Hesperornis
+		Iguana
+		Insectivore
+		Marmosa
+		Marsupial
+		Melanosaurus
+		Mustela
+		Nodosaurus
+		Oceanodroma
+		Ochotona
+		Pachycephalosaur
+		Paleophis
+		Pancelosaurus
+		Passer
+		Platypus
+		Plesiosaur
+		Polyglyphanodon
+		Pteranodon
+		Puma
+		Rattus
+		Rhamphorhynchoid
+		Saniwa
+		Spheniscus
+		Stegosaurus
+		Tachyglossus
+		Telmatornis
+		Tenrec
+		Topaza
+		Triceratops
+		Tyrannosaurus
+		Varanus
+		Xanthusiid
+	;
+END;
+BEGIN TREES;
+	TRANSLATE
+		1	Agama,
+		2	Allosaurus,
+		3	Anseriform,
+		4	Anthrozous,
+		5	Aotus,
+		6	Ara,
+		7	Bos,
+		8	Brontothere,
+		9	Cetacean,
+		10	Champsosaur,
+		11	Chironectes,
+		12	Columbina,
+		13	Crocodylomorph,
+		14	Crypturellus,
+		15	Cteniogenys,
+		16	Deinonychus,
+		17	Dendrocygna,
+		18	Diplodocid,
+		19	Dryosaurus,
+		20	Edaphosaurus,
+		21	Furcifer,
+		22	Gavialis,
+		23	Hadrosaur,
+		24	Hesperornis,
+		25	Iguana,
+		26	Insectivore,
+		27	Marmosa,
+		28	Marsupial,
+		29	Melanosaurus,
+		30	Mustela,
+		31	Nodosaurus,
+		32	Oceanodroma,
+		33	Ochotona,
+		34	Pachycephalosaur,
+		35	Paleophis,
+		36	Pancelosaurus,
+		37	Passer,
+		38	Platypus,
+		39	Plesiosaur,
+		40	Polyglyphanodon,
+		41	Pteranodon,
+		42	Puma,
+		43	Rattus,
+		44	Rhamphorhynchoid,
+		45	Saniwa,
+		46	Spheniscus,
+		47	Stegosaurus,
+		48	Tachyglossus,
+		49	Telmatornis,
+		50	Tenrec,
+		51	Topaza,
+		52	Triceratops,
+		53	Tyrannosaurus,
+		54	Varanus,
+		55	Xanthusiid
+	;
+	TREE * UNTITLED = [&R] ((20:23.40201763,((38:46,48:46):126.5,((28:20.23813556,(27:30,11:30):2):105.6,(50:109.3,((5:90,(43:82,33:82):8):2,(26:22.90171688,(4:62,((30:54,42:54):6,(8:10.49955598,(7:56,9:44.5710184):2):2):2):2):28):17.3):28.3):34.9):126.9830521):23.81694795,((15:6.115722649,10:91.62262261):116.6100666,(39:115.6934554,(((25:157,(1:101,21:101):56):2,(40:2.268068836,(55:63.62148837,((36:2.346929862,29:8.376126121):2,(35:11.73691027,(45:7.744721042,54:48.65762883):4.190089457):9.714443813):2):5.239633915):89.19820399):107.7,((13:7.777007686,22:48.86526903):201.334731,((44:6.047214922,41:69.00618964):93.86582936,(((31:69.29753314,47:6.348286418):3.608426564,((34:2.902663019,52:2.742671815):85.48448049,(19:5.616248158,23:78.02649891):2):2.47192177):73.97345773,(18:8.195629686,(2:5.801786419,(53:53.63209997,(16:13.00603328,(24:8.656698579,(14:92,((17:49.3543693,3:7.741713534):40.6456307,(51:88,(12:86,((37:82,6:82):2,(49:6.556449978,(46:72.1,32:72.1):2):9.9):2):2):2):2):2):24.99448087):2):33.00506912):2.230114761):76.00033525):15.97):2):16.5):2):2):52.6);
+END;
